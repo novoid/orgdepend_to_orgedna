@@ -1,0 +1,203 @@
+* org-depend_to_org-edna test file
+
+This file contains all kinds of Org mode org-depend and org-edna
+snippets that should be converted to org-edna only.
+
+Additionally to the simple unit tests, converting this file and
+comparing to =testfile_expected_output.org= is the ultimative test run
+for this tool.
+
+* org-depend projects
+
+** test 1
+
+*** trigger with one reference
+:PROPERTIES:
+:CREATED:  [2020-09-19 Sat 11:17]
+:TRIGGER: 2020-09-19-task-2(NEXT)
+:END:
+
+*** trigger with two references
+SCHEDULED: <2020-09-19 Sat> DEADLINE: <2020-09-20 Sun>
+:PROPERTIES:
+:CREATED:  [2020-09-19 Sat 11:17]
+:TRIGGER: 2020-09-19-task-2(NEXT) 2020-09-19-task-3(STARTED)
+:END:
+
+*** task 2: no blocker/trigger
+:PROPERTIES:
+:CREATED:  [2020-09-19 Sat 11:17]
+:ID:       2020-09-19-task-2
+:END:
+
+*** task 3: 1 blocker
+:PROPERTIES:
+:CREATED:  [2020-09-19 Sat 11:19]
+:BLOCKER: 2020-09-19-task-2
+:ID:       2020-09-19-task-3
+:END:
+
+*** task with 2 blockers
+:PROPERTIES:
+:CREATED:  [2020-09-19 Sat 11:35]
+:BLOCKER: 2020-09-19-task-3 2020-09-19-task-2
+:END:
+
+*** task with 2 blockers and trigger with two reference
+SCHEDULED: <2020-09-19 Sat>
+:PROPERTIES:
+:CREATED:  [2020-09-19 Sat 11:35]
+:BLOCKER: 2020-09-19-task-3 2020-09-19-task-2
+:TRIGGER: 2020-09-19-task-2(NEXT) 2020-09-19-task-3(STARTED)
+:END:
+
+* org-edna projects
+
+** Test project with org-edna 1
+
+
+*** TODO task A
+SCHEDULED: <2020-07-31 Fri>
+:PROPERTIES:
+:EFFORT: 3d
+:ID: taskA
+:TRIGGER: ids(taskB) scheduled!(".") todo!(TODO)  ids(taskC) scheduled!("++3d") todo!(STARTED)
+:CREATED:  [2020-07-31 Fri 12:56]
+:END:
+
+*** task B
+:PROPERTIES:
+:ID: taskB
+:EFFORT: 2d
+:END:
+
+*** task C
+:PROPERTIES:
+:ID: taskC
+:EFFORT: 1d
+:TRIGGER: ids(taskD) scheduled!(".") todo!(WAITING)
+:END:
+
+*** task D
+:PROPERTIES:
+:ID: taskD
+:EFFORT: 5d
+:END:
+
+** NEXT [0/2] Example org-edna project: Garage Project                               :GProj:project:
+:PROPERTIES:
+:ID:       2020-08-14-Example-projectX-for-PlantUML-Gantt-chart
+:COLUMNS:  %40ITEM %6Effort(Effort){:} %60BLOCKER
+:CREATED:  [2020-08-14 Fri 11:59]
+:COOKIE_DATA: todo recursive
+:END:
+
+*** NEXT Find local stores for paint
+SCHEDULED: <2020-09-19 Sat>
+:PROPERTIES:
+:Effort:   3h
+:TRIGGER:  ids(GProj-Buy-paint) todo!(NEXT) scheduled!(".")
+:ID:       GProj-Find-local-stores-for-paint
+:CREATED:  [2020-09-19 Sat 11:16]
+:END:
+
+*** NEXT Choose color for paint
+:PROPERTIES:
+:Effort:   3h
+:ID:       GProj-Choose-color-for-paint
+:TRIGGER:  ids(GProj-Buy-paint) todo!(NEXT) scheduled!(".")
+:END:
+
+*** Buy paint
+:PROPERTIES:
+:Effort:   3h
+:ID:       GProj-Buy-paint
+:BLOCKER:  ids(GProj-Find-local-stores-for-paint GProj-Choose-color-for-paint)
+:TRIGGER:  ids(GProj-Move-car-to-nearby-parking-lot) todo!(NEXT) scheduled!(".") ids(GProj-Remove-bikes) todo!(NEXT) scheduled!(".") ids(GProj-Remove-stuff-from-shelves) todo!(NEXT) scheduled!(".")
+:END:
+
+FIXXME: Here, I still don't know how to achieve that "Buy paint" is
+only scheduled when both prior tasks are marked as DONE.
+
+*** Move car to nearby parking lot
+:PROPERTIES:
+:Effort:   1h
+:ID:       GProj-Move-car-to-nearby-parking-lot
+:BLOCKER:  ids(GProj-Buy-paint)
+:TRIGGER:  ids(GProj-Garage-is-empty) todo!(DONE) scheduled!(".")
+:END:
+
+Please notice that as of 2020-08-14 and org edna version 1.0.2,
+headings without an active keywords can be marked as DONE despite the
+fact that they're blocked. I've reported this bug already and hope for
+a fix.
+
+*** Remove bikes
+:PROPERTIES:
+:Effort:   1h
+:ID:       GProj-Remove-bikes
+:BLOCKER:  ids(GProj-Buy-paint)
+:TRIGGER:  ids(GProj-Garage-is-empty) todo!(DONE)
+:END:
+
+*** Remove stuff from shelves
+:PROPERTIES:
+:Effort:   2d
+:ID:       GProj-Remove-stuff-from-shelves
+:BLOCKER:  ids(GProj-Buy-paint)
+:TRIGGER:  ids(GProj-Remove-shelves) todo!(NEXT) scheduled!("++1d")
+:END:
+
+*** Remove shelves
+:PROPERTIES:
+:Effort:   1d
+:ID:       GProj-Remove-shelves
+:BLOCKER:  ids(GProj-Remove-stuff-from-shelves)
+:TRIGGER:  ids(GProj-Garage-is-empty) todo!(DONE)
+:END:
+
+*** Garage is empty
+:PROPERTIES:
+:ID:       GProj-Garage-is-empty
+:BLOCKER:  ids(GProj-Move-car-to-nearby-parking-lot GProj-Remove-bikes GProj-Remove-shelves)
+:TRIGGER:  ids(GProj-Paint-walls-and-floor) todo!(NEXT) scheduled!("++1d")
+:END:
+
+*** Paint walls and floor
+:PROPERTIES:
+:Effort:   1d
+:ID:       GProj-Paint-walls-and-floor
+:BLOCKER:  ids(GProj-Garage-is-empty)
+:TRIGGER:  ids(GProj-Re-install-shelves) todo!(NEXT) scheduled!("++2d")
+:END:
+
+*** Re-install shelves
+:PROPERTIES:
+:Effort:   8h
+:ID:       GProj-Re-install-shelves
+:BLOCKER:  ids(GProj-Paint-walls-and-floor)
+:TRIGGER:  ids(GProj-Bring-back-bikes-into-garage) todo!(NEXT) scheduled!(".")  ids(GProj-Bring-back-car-into-garage) todo!(NEXT) scheduled!(".")
+:END:
+
+*** Bring back bikes into garage
+:PROPERTIES:
+:Effort:   1h
+:ID:       GProj-Bring-back-bikes-into-garage
+:BLOCKER:  ids(GProj-Re-install-shelves)
+:TRIGGER:  ids(GProj-Celebrate-and-close-project) todo!(NEXT) scheduled!(".")
+:END:
+
+*** Bring back car into garage
+:PROPERTIES:
+:Effort:   1h
+:ID:       GProj-Bring-back-car-into-garage
+:BLOCKER:  ids(GProj-Re-install-shelves)
+:TRIGGER:  ids(GProj-Celebrate-and-close-project) todo!(NEXT) scheduled!(".")
+:END:
+
+*** Celebrate and close project
+:PROPERTIES:
+:BLOCKER: consider(all) rest-of-siblings-wrap
+:ID:       GProj-Celebrate-and-close-project
+:END:
+
