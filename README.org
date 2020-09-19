@@ -14,6 +14,10 @@ support* for the org-depend syntax I was using in my own files. Please
 take a look at the test cases in order to get an overview what
 properties are understood and converted.
 
+This script is written in Python 3 because I'm familiar with Python
+and can't implement things like this in Elisp in a manner where I
+would be confident.
+
 ** Instructions
 
 1. This tool needs [[http://www.python.org/downloads/][Python 3 to be installed]].
