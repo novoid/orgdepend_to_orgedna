@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8; mode: python; -*-
-PROG_VERSION = u"Time-stamp: <2020-09-20 21:25:01 vk>"
+PROG_VERSION = u"Time-stamp: <2020-09-20 22:03:53 vk>"
 PROG_VERSION_DATE = PROG_VERSION[13:23]
 import sys
 import os
@@ -18,7 +18,7 @@ Please make sure you do have backup files in case something gets wrong."""
 EPILOG = """
 :copyright: (c) by Karl Voit <tools@Karl-Voit.at>
 :license: GPL v3 or any later version
-:URL: https://github.com/novoid/filetags
+:URL: https://github.com/novoid/FIXXME
 :bugreports: via github or <tools@Karl-Voit.at>
 :version: """ + PROG_VERSION_DATE + "\n·\n"
 
@@ -35,7 +35,11 @@ parser = argparse.ArgumentParser(prog=sys.argv[0],
                                  epilog=EPILOG,
                                  description=DESCRIPTION)
 
-parser.add_argument(dest="files", metavar='FILE', nargs='*', help='FIXXME: One or more files to convert')
+parser.add_argument(dest="files", metavar='FILE', nargs='*', help='One or more files to convert')
+
+parser.add_argument("--overwrite",
+                    dest="overwrite", action="store_true",
+                    help="Existing output files may be overwritten without warning")
 
 parser.add_argument("-v", "--verbose",
                     dest="verbose", action="store_true",
@@ -52,7 +56,7 @@ parser.add_argument("--version",
 options = parser.parse_args()
 
 
-def handle_logging():
+def handle_logging() -> None:
     """Log handling and configuration"""
 
     if options.verbose:
@@ -98,10 +102,10 @@ def get_trigger_matches(line: str) -> Union[None, list]:
     # ASSUMPTION: existing org-edna trigger lines are only detected via occurrences of 'todo!(' or 'scheduled!('.
     if 'todo!(' in line:
         # already org-edna syntax
-        return False
+        return None
     elif 'scheduled!(' in line:
         # already org-edna syntax
-        return False
+        return None
     elif line.strip().upper().startswith(':TRIGGER:'):
         # most probably a clean trigger line (comments, ...)
         components = TRIGGER_DEPEND_REGEX.findall(line.strip())
@@ -157,7 +161,6 @@ def get_blocker_matches(line: str) -> Union[None, list]:
             else:
                 return [rawids]  # only one id
         else:
-            logging.info('Could not parse blocker line: ' + line)
             return None
 
 
@@ -168,49 +171,63 @@ def generate_blocker_line_from_ids(ids: list) -> str:
     return ':BLOCKER: ids(' + ' '.join(ids) + ')'
 
 
-def handle_file(filename: str) -> bool:
+def handle_file(filename: str) -> None:
     """
     Handles one single Org mode file for conversion
 
     @param filename: name of the file to process
-    @return:  FIXXME
     """
 
-    # FIXXME: converted_filename = absolute path + basename of old filename + '_converted.' + old file extension
-    # FIXXME: check that new file name does not exist
-    # FIXXME: implement allow overwrite CLI option
-    # FIXXME: implement writing converted new file
+    # converted_filename = absolute path + basename of old filename + '_converted.' + old file extension
+    filename_split = os.path.splitext(filename)
+    output_filename = filename_split[0] + '_converted' + filename_split[1]
 
-    with codecs.open(filename, 'r', encoding='utf-8') as input:
-        in_properties = False
-        for line in input:
-            # To maintain at least a minimum of sanity, matches for
-            # trigger and blocker properties are only tried within
-            # property drawers and not outside. However, detection of
-            # property drawers is very basic.
-            #
-            # ASSUMPTION: property drawers are always started with
-            # ':PROPERTIES:' (no extra leading spaces) and ended with
-            # ':END:' (no extra leading spaces).
-            #
-            # ASSUMPTION: no check for non-conform property drawer
-            # here: each line starting with ':PROPERTIES:' is a valid
-            # property drawer start.
-            if line.startswith(':PROPERTIES:'):
-                in_properties = True
-                continue
-            if line.startswith(':END:'):
-                in_properties = False
-                continue
-            if in_properties:
-                ids = get_blocker_matches(line)
-                if ids:
-                    line = generate_blocker_line_from_ids(ids)
-                matches = get_trigger_matches(line)
-                if matches:
-                    trigger_line = convert_trigger_line(matches)
+    # check that new file name does not exist
+    if os.path.isfile(output_filename) and not options.overwrite:
+        error_exit(10, 'Output file name already exists and option "--overwrite" is not given. File name: "output_filename"')
 
-    return True  # FIXXME
+    logging.info('converting:  "' + filename + '"  →  "' + output_filename + '"')
+
+    with open(output_filename, 'w') as outputhandle:
+        with codecs.open(filename, 'r', encoding='utf-8') as input:
+            in_properties = False
+            for line in input:
+                # To maintain at least a minimum of sanity, matches for
+                # trigger and blocker properties are only tried within
+                # property drawers and not outside. However, detection of
+                # property drawers is very basic.
+                #
+                # ASSUMPTION: property drawers are always started with
+                # ':PROPERTIES:' (no extra leading spaces) and ended with
+                # ':END:' (no extra leading spaces).
+                #
+                # ASSUMPTION: no check for non-conform property drawer
+                # here: each line starting with ':PROPERTIES:' is a valid
+                # property drawer start.
+                if line.startswith(':PROPERTIES:'):
+                    in_properties = True
+                    outputhandle.write(line)
+                    continue
+                if line.startswith(':END:'):
+                    in_properties = False
+                    outputhandle.write(line)
+                    continue
+                if in_properties:
+                    ids = get_blocker_matches(line)
+                    if ids:
+                        newline = generate_blocker_line_from_ids(ids)
+                        outputhandle.write(newline + '\n')
+                        continue
+                    matches = get_trigger_matches(line)
+                    if matches:
+                        newline = convert_trigger_line(matches)
+                        outputhandle.write(newline + '\n')
+                        continue
+                    else:
+                        outputhandle.write(line)
+                else:
+                    outputhandle.write(line)
+    print()  # add an empty line after each file so that stdout is more legible
 
 
 def main():
@@ -218,6 +235,10 @@ def main():
 
     if options.version:
         print(os.path.basename(sys.argv[0]) + " version " + PROG_VERSION_DATE)
+        sys.exit(0)
+
+    if not options.files:
+        parser.print_help()
         sys.exit(0)
 
     handle_logging()
@@ -235,10 +256,11 @@ def main():
     if not all_files_exist:
         error_exit(2, "One or more files from the argument list do not exist. Please check parameters and try again.")
 
+    print()  # add an empty line before each file so that stdout is more legible
     for filename in options.files:
         handle_file(filename)
 
-    logging.debug("successfully finished.")
+    logging.info("successfully converted all given files.")
 
 
 if __name__ == "__main__":
