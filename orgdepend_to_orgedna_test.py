@@ -1,25 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2020-09-20 21:23:50 vk>
+# Time-stamp: <2020-09-20 21:27:26 vk>
 
 # FIXXME: remove unnecessary imports
 import unittest
-# import os
 import orgdepend_to_orgedna
-# import tempfile
-# import os.path
-import logging
-# import platform
-# import time  # for sleep()
-# from shutil import rmtree
 
-# TEMPLATE for debugging:
-#        try:
-#        except AssertionError:
-#            import pdb; pdb.set_trace()
-
-FORMAT = "%(levelname)-8s %(asctime)-15s %(message)s"
-logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 
 class TestMethods(unittest.TestCase):
 
@@ -125,12 +111,6 @@ class TestMethods(unittest.TestCase):
         self.assertEqual(orgdepend_to_orgedna.generate_blocker_line_from_ids(['2015-07-19-an-id', '2020-09-19-another']),
                          ':BLOCKER: ids(2015-07-19-an-id 2020-09-19-another)'
                          )
-
-
-
-#        self.assertEqual(orgdepend_to_orgedna.generate_blocker_line_from_ids('')),
-#                         ''
-#                         )
 
 
 if __name__ == '__main__':
