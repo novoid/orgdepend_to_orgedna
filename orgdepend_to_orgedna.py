@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8; mode: python; -*-
-PROG_VERSION = u"Time-stamp: <2020-09-20 22:03:53 vk>"
+PROG_VERSION = u"Time-stamp: <2020-09-20 22:15:04 vk>"
 PROG_VERSION_DATE = PROG_VERSION[13:23]
 import sys
 import os
@@ -197,13 +197,13 @@ def handle_file(filename: str) -> None:
                 # property drawers and not outside. However, detection of
                 # property drawers is very basic.
                 #
-                # ASSUMPTION: property drawers are always started with
-                # ':PROPERTIES:' (no extra leading spaces) and ended with
+                # ASSUMPTION: property drawers are always starts with
+                # ':PROPERTIES:' (no extra leading spaces) and ends with
                 # ':END:' (no extra leading spaces).
                 #
-                # ASSUMPTION: no check for non-conform property drawer
-                # here: each line starting with ':PROPERTIES:' is a valid
-                # property drawer start.
+                # ASSUMPTION: no check for non-conform property drawer.
+                # Each line starting with ':PROPERTIES:' is a valid
+                # property drawer start indicator.
                 if line.startswith(':PROPERTIES:'):
                     in_properties = True
                     outputhandle.write(line)

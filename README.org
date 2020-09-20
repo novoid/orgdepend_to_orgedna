@@ -1,7 +1,7 @@
 * org-depend_to_org-edna
 
-This is a utility tool to convert [[https://orgmode.org][Org mode]] files from [[https://orgmode.org/worg/org-contrib/org-depend.html][org-depend]] to
-[[https://www.nongnu.org/org-edna-el/][org-edna]]. Both packages are methods to define dependencies between
+This is a utility tool to convert Emacs [[https://orgmode.org][Org mode]] files from [[https://orgmode.org/worg/org-contrib/org-depend.html][org-depend]]
+to [[https://www.nongnu.org/org-edna-el/][org-edna]]. Both packages are methods to define dependencies between
 todo tasks. The latter one is more advanced and therefore has a more
 complicated syntax.
 
@@ -18,17 +18,86 @@ This script is written in Python 3 because I'm familiar with Python
 and can't implement things like this in Elisp in a manner where I
 would be confident.
 
-** Instructions
+** Installation
 
 1. This tool needs [[http://www.python.org/downloads/][Python 3 to be installed]].
-2. Download the repository from GitHub. FIXXME: Repository URL
-3. Execute the unit tests in order to check if it is working in your
-   environment.
-   - Please note that the unit tests are not exhaustive, covering only
-     a minimum set of conversion functionality.
-4. Apply on your Org mode files.
-5. *Check the result file* using a diff-tool like [[https://meldmerge.org/][meld]] before
-   replacing the original file with the modified output of this tool.
+2. Download ZIP file from GitHub or clone the repository via git.
+
+** Tests
+
+Please do run =run_unit_tests.sh= on your system before converting
+your files. This ensures basic functionality when no error is
+reported.
+
+What is executed:
+
+1. The set of unit tests from =orgdepend_to_orgedna_test.py=.
+2. [[http://mypy-lang.org/][mypy]] checks for type errors.
+   - mypy needs to be installed. Alternatively, you can disable this test.
+3. The example file [[file:testfile_input.org][testfile_input.org]] gets converted to
+   =testfile_input_converted.org= which gets compared to
+   [[file:testfile_expected_output.org][testfile_expected_output.org]].
+   - This is an end-to-end test which also gives you a brief overview
+     on the features and limitations of this tool.
+
+** Assumptions
+
+Due the "works for me"-type of tool, I made some assumptions which may
+or may not reflect your situation:
+
+ASSUMPTION: IDs consists of =[a-zA-Z0-9-]+= only. Exception: yasnippet
+templates with Elisp code.
+
+ASSUMPTION: property drawers are always starts with
+=:PROPERTIES:= (no extra leading spaces) and ends with
+=:END:= (no extra leading spaces).
+
+ASSUMPTION: no check for non-conform property drawer.
+Each line starting with ':PROPERTIES:' is a valid
+property drawer start indicator.
+
+I only convert a limited set of =:BLOCKER:= and =:TRIGGER:= lines.
+Please look at [[file:orgdepend_to_orgedna_test.py][the unit test file]] to see what cases are covered. The
+handled cases also contain [[https://github.com/joaotavora/yasnippet][yasnippet]] lines with simple Elisp code.
+
+** Command Line Options
+
+ # #+BEGIN_SRC sh :results output :wrap src
+ # ./orgdepend_to_orgedna.py --help
+ # #+END_SRC
+
+#+begin_src
+usage: orgdepend_to_orgedna.py [-h] [--overwrite] [-v] [-q] [--version]
+                               [FILE [FILE ...]]
+
+This script converts Emacs Org mode files from org-depend to org-edna.
+Please make sure you do have backup files in case something gets wrong.
+
+positional arguments:
+  FILE           One or more files to convert
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --overwrite    Existing output files may be overwritten without warning
+  -v, --verbose  Enable verbose mode
+  -q, --quiet    Enable quiet mode
+  --version      Display version and exit
+
+:copyright: (c) by Karl Voit <tools@Karl-Voit.at>
+:license: GPL v3 or any later version
+:URL: https://github.com/novoid/FIXXME
+:bugreports: via github or <tools@Karl-Voit.at>
+:version: 2020-09-20
+·
+#+end_src
+
+You might want to convert your Org mode files in bulk with something
+like:
+
+: /path/to/orgdepend_to_orgedna.py *.org *.org_archive
+
+Please check out the resulting files for correct result using a
+diff-tool like [[https://meldmerge.org/][meld]] before removing the original files.
 
 ** How to Thank Me
 
