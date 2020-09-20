@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8; mode: python; -*-
-PROG_VERSION = u"Time-stamp: <2020-09-19 23:39:59 vk>"
+PROG_VERSION = u"Time-stamp: <2020-09-20 21:25:01 vk>"
 PROG_VERSION_DATE = PROG_VERSION[13:23]
 import sys
 import os
@@ -22,7 +22,12 @@ EPILOG = """
 :bugreports: via github or <tools@Karl-Voit.at>
 :version: """ + PROG_VERSION_DATE + "\n·\n"
 
+# ASSUMPTION: IDs consists of [a-zA-Z0-9-]+ only
+# Note: though org-depend concatenates IDs with spaces, I may have used commas as well somewhere.
 BLOCKER_DEPEND_REGEX = re.compile(r'\s*:BLOCKER:\s+(?P<ids>([a-zA-Z0-9-]+[ ,]*)+)\s*')
+
+# TRIGGER_DEPEND_REGEX = re.compile(r'((([a-zA-Z0-9-]+)\(([A-Z]+)\)))')  # working version without elisp parts
+TRIGGER_DEPEND_REGEX = re.compile(r'((([a-zA-Z0-9-\'`\(\)\\ ]+?)\(([A-Z]+?)\)))')
 
 parser = argparse.ArgumentParser(prog=sys.argv[0],
                                  # keep line breaks in EPILOG and such
@@ -61,7 +66,7 @@ def handle_logging():
         logging.basicConfig(level=logging.INFO, format=FORMAT)
 
 
-def error_exit(errorcode, text):
+def error_exit(errorcode: int, text: str) -> None:
     """exits with return value of errorcode and prints to stderr"""
 
     sys.stdout.flush()
@@ -85,36 +90,52 @@ class OrgmodeParseException(Exception):
     # raise OrgmodeParseException('Error while parsing line. Could not extract ids: "%s"' % line)
 
 
-TRIGGER_DEPEND_REGEX = re.compile(r'\w*:TRIGGER:\w*(ids\((?P<ids>.+?\))|(/(?P<action>.+)!\(?P<value>.+\)))')
-
-
-def get_trigger_matches(line: str) -> Union[bool, list]:
+def get_trigger_matches(line: str) -> Union[None, list]:
     """
     Returns a set of matching elements or False when the line does not match.
-
-    @param line: FIXXME
-    @param m: FIXXME
-    @return:  FIXXME
     """
 
-    if '!' in line:
+    # ASSUMPTION: existing org-edna trigger lines are only detected via occurrences of 'todo!(' or 'scheduled!('.
+    if 'todo!(' in line:
+        # already org-edna syntax
         return False
+    elif 'scheduled!(' in line:
+        # already org-edna syntax
+        return False
+    elif line.strip().upper().startswith(':TRIGGER:'):
+        # most probably a clean trigger line (comments, ...)
+        components = TRIGGER_DEPEND_REGEX.findall(line.strip())
+        # example: ('2016-11-04-some-title(DONE)', '2016-11-04-some-title(DONE)', '2016-11-04-some-title', 'DONE')
+        if components:
+            # generate a list of sets from the result:
+            #    x[-2] = id
+            #    x[-1] = keyword
+            return [(x[-2].strip(), x[-1]) for x in components]
+        else:
+            logging.info('Could not parse trigger line: ' + line)
+            return None
     else:
-        components = line.match(TRIGGER_DEPEND_REGEX)
+        # not a clean trigger line: comments, ...
+        return None
 
-        return components
 
-
-def convert_trigger_line(line: str) -> Union[bool, str]:
+def convert_trigger_line(matches: list) -> str:
     """
-    Converts an matching trigger line from org-depend syntax to org-edna syntax.
+    Converts matching trigger elements from org-depend syntax to org-edna syntax.
 
-    @param line: FIXXME
-    @param m: FIXXME
-    @return:  FIXXME
+    example "matches": ('2016-11-04-some-title(DONE)', '2016-11-04-some-title(DONE)', '2016-11-04-some-title', 'DONE')
+
+    example return value: ':TRIGGER: ids(2016-11-04-some-title) todo!(DONE) ids(2020-09-19-foo) todo!(STARTED)'
     """
 
-    return False  # FIXXME
+    assert(len(matches) > 0)
+    edna_result = ':TRIGGER:'
+
+    # a list of sets from the regex result
+    for match in matches:
+        (dependid, keyword) = match
+        edna_result += ' ids(' + dependid + ') todo!(' + keyword + ')'
+    return edna_result
 
 
 def get_blocker_matches(line: str) -> Union[None, list]:
@@ -136,6 +157,7 @@ def get_blocker_matches(line: str) -> Union[None, list]:
             else:
                 return [rawids]  # only one id
         else:
+            logging.info('Could not parse blocker line: ' + line)
             return None
 
 
@@ -154,15 +176,40 @@ def handle_file(filename: str) -> bool:
     @return:  FIXXME
     """
 
+    # FIXXME: converted_filename = absolute path + basename of old filename + '_converted.' + old file extension
+    # FIXXME: check that new file name does not exist
+    # FIXXME: implement allow overwrite CLI option
+    # FIXXME: implement writing converted new file
+
     with codecs.open(filename, 'r', encoding='utf-8') as input:
+        in_properties = False
         for line in input:
-            # trigger_components = get_trigger_matches(line)
-            # if trigger_components:
-            #     print(line)
-            ids = get_blocker_matches(line)
-            if ids:
-                line = generate_blocker_line_from_ids(line)
-                
+            # To maintain at least a minimum of sanity, matches for
+            # trigger and blocker properties are only tried within
+            # property drawers and not outside. However, detection of
+            # property drawers is very basic.
+            #
+            # ASSUMPTION: property drawers are always started with
+            # ':PROPERTIES:' (no extra leading spaces) and ended with
+            # ':END:' (no extra leading spaces).
+            #
+            # ASSUMPTION: no check for non-conform property drawer
+            # here: each line starting with ':PROPERTIES:' is a valid
+            # property drawer start.
+            if line.startswith(':PROPERTIES:'):
+                in_properties = True
+                continue
+            if line.startswith(':END:'):
+                in_properties = False
+                continue
+            if in_properties:
+                ids = get_blocker_matches(line)
+                if ids:
+                    line = generate_blocker_line_from_ids(ids)
+                matches = get_trigger_matches(line)
+                if matches:
+                    trigger_line = convert_trigger_line(matches)
+
     return True  # FIXXME
 
 
