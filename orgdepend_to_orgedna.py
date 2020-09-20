@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8; mode: python; -*-
-PROG_VERSION = u"Time-stamp: <2020-09-20 22:15:04 vk>"
+PROG_VERSION = u"Time-stamp: <2020-09-20 22:42:35 vk>"
 PROG_VERSION_DATE = PROG_VERSION[13:23]
 import sys
 import os
@@ -103,6 +103,9 @@ def get_trigger_matches(line: str) -> Union[None, list]:
     if 'todo!(' in line:
         # already org-edna syntax
         return None
+    elif 'consider(' in line:
+        # already org-edna syntax
+        return None
     elif 'scheduled!(' in line:
         # already org-edna syntax
         return None
@@ -148,6 +151,8 @@ def get_blocker_matches(line: str) -> Union[None, list]:
     """
 
     if 'ids(' in line:
+        return None
+    elif 'consider(' in line:
         return None
     else:
         components = BLOCKER_DEPEND_REGEX.match(line.strip())
