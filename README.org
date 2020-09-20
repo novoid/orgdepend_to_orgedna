@@ -45,6 +45,8 @@ What is executed:
 Due the "works for me"-type of tool, I made some assumptions which may
 or may not reflect your situation:
 
+ASSUMPTION: todo keywords are UPPER case words
+
 ASSUMPTION: IDs consists of =[a-zA-Z0-9-]+= only. Exception: yasnippet
 templates with Elisp code.
 
