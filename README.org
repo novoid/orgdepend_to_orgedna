@@ -25,9 +25,13 @@ would be confident.
 
 ** Tests
 
-Please do run =run_unit_tests.sh= on your system before converting
+Please do run =run_tests.sh= on your system before converting
 your files. This ensures basic functionality when no error is
 reported.
+
+Windows users: this is a shell script which is not compatible with =cmd.exe=
+or the PowerShell. Use a compatible shell (WSL or similar) or invoke the commands
+using Microsoft conventions.
 
 What is executed:
 
