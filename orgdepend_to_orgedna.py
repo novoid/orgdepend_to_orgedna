@@ -141,7 +141,7 @@ def convert_trigger_line(matches: list) -> str:
     # a list of sets from the regex result
     for match in matches:
         (dependid, keyword) = match
-        edna_result += ' ids(' + dependid + ') todo!(' + keyword + ')'
+        edna_result += ' ids("id:' + dependid + '") todo!(' + keyword + ')'
     return edna_result
 
 
@@ -173,7 +173,7 @@ def generate_blocker_line_from_ids(ids: list) -> str:
     """
     Converts an matching blocker line from org-depend syntax to org-edna syntax.
     """
-    return ':BLOCKER: ids(' + ' '.join(ids) + ')'
+    return ':BLOCKER: ids("id:' + '" "id:'.join(ids) + '")'
 
 
 def handle_file(filename: str) -> None:

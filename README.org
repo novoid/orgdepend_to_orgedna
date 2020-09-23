@@ -55,12 +55,17 @@ ASSUMPTION: property drawers are always starts with
 =:END:= (no extra leading spaces).
 
 ASSUMPTION: no check for non-conform property drawer.
-Each line starting with ':PROPERTIES:' is a valid
+Each line starting with =:PROPERTIES:= is a valid
 property drawer start indicator.
 
 I only convert a limited set of =:BLOCKER:= and =:TRIGGER:= lines.
 Please look at [[file:orgdepend_to_orgedna_test.py][the unit test file]] to see what cases are covered. The
 handled cases also contain [[https://github.com/joaotavora/yasnippet][yasnippet]] lines with simple Elisp code.
+
+One further assumption: at least with =org-edna= version 1.1.2 you can
+use =ids("id:foo")= (notice the "id:" within the ID) which gets you
+navigable links within =ids()= properties. This won't work with older
+versions of =org-edna=.
 
 ** Command Line Options
 
