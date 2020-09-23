@@ -1,4 +1,4 @@
-* org-depend_to_org-edna
+* orgdepend_to_orgedna
 
 This is a utility tool to convert Emacs [[https://orgmode.org][Org mode]] files from [[https://orgmode.org/worg/org-contrib/org-depend.html][org-depend]]
 to [[https://www.nongnu.org/org-edna-el/][org-edna]]. Both packages are methods to define dependencies between
@@ -96,7 +96,7 @@ optional arguments:
 
 :copyright: (c) by Karl Voit <tools@Karl-Voit.at>
 :license: GPL v3 or any later version
-:URL: https://github.com/novoid/FIXXME
+:URL: https://github.com/novoid/orgdepend_to_orgedna
 :bugreports: via github or <tools@Karl-Voit.at>
 :version: 2020-09-20
 ·
@@ -105,6 +105,7 @@ optional arguments:
 You might want to convert your Org mode files in bulk with something
 like:
 
+: cd /path/to/your/org/files/
 : /path/to/orgdepend_to_orgedna.py *.org *.org_archive
 
 Please check out the resulting files for correct result using a

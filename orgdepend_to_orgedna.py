@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8; mode: python; -*-
-PROG_VERSION = u"Time-stamp: <2020-09-20 22:42:35 vk>"
+PROG_VERSION = u"Time-stamp: <2020-09-23 20:32:31 vk>"
 PROG_VERSION_DATE = PROG_VERSION[13:23]
 import sys
 import os
@@ -18,16 +18,17 @@ Please make sure you do have backup files in case something gets wrong."""
 EPILOG = """
 :copyright: (c) by Karl Voit <tools@Karl-Voit.at>
 :license: GPL v3 or any later version
-:URL: https://github.com/novoid/FIXXME
+:URL: https://github.com/novoid/orgdepend_to_orgedna
 :bugreports: via github or <tools@Karl-Voit.at>
 :version: """ + PROG_VERSION_DATE + "\n·\n"
 
-# ASSUMPTION: IDs consists of [a-zA-Z0-9-]+ only
+# ASSUMPTION: IDs consists of [a-zA-Z0-9-]+ only + some elisp code for yasnippet
+# ASSUMPTION: todo keywords are UPPER case words
 # Note: though org-depend concatenates IDs with spaces, I may have used commas as well somewhere.
-BLOCKER_DEPEND_REGEX = re.compile(r'\s*:BLOCKER:\s+(?P<ids>([a-zA-Z0-9-]+[ ,]*)+)\s*')
+BLOCKER_DEPEND_REGEX = re.compile(r"\s*:BLOCKER:\s+(?P<ids>([a-zA-Z0-9'`\(\)\\ -]+?[ ,]*)+?)\s*")
 
 # TRIGGER_DEPEND_REGEX = re.compile(r'((([a-zA-Z0-9-]+)\(([A-Z]+)\)))')  # working version without elisp parts
-TRIGGER_DEPEND_REGEX = re.compile(r'((([a-zA-Z0-9-\'`\(\)\\ ]+?)\(([A-Z]+?)\)))')
+TRIGGER_DEPEND_REGEX = re.compile(r"((([A-Z]+?)\(([a-zA-Z0-9-'`\(\)\\ ]+?)\)))")
 
 parser = argparse.ArgumentParser(prog=sys.argv[0],
                                  # keep line breaks in EPILOG and such
