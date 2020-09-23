@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2020-09-23 20:34:16 vk>
+# Time-stamp: <2020-09-23 21:59:59 vk>
 
 # FIXXME: remove unnecessary imports
 import unittest
@@ -56,7 +56,13 @@ class TestMethods(unittest.TestCase):
         self.assertEqual(['2016-11-04-some-title', '2020-09-19-foo'], orgdepend_to_orgedna.get_blocker_matches(' :BLOCKER: 2016-11-04-some-title  2020-09-19-foo'))
         self.assertEqual(['2016-11-04-some-title', '2020-09-19-foo'], orgdepend_to_orgedna.get_blocker_matches(':BLOCKER: 2016-11-04-some-title, 2020-09-19-foo'))
         self.assertEqual(['2016-11-04-some-title', '2020-09-19-foo'], orgdepend_to_orgedna.get_blocker_matches(':BLOCKER: 2016-11-04-some-title,  2020-09-19-foo'))
+
+        # with yasnippet code in it:
         self.assertEqual(['`(my-capture-insert \'my-event-date)`-k-email1'], orgdepend_to_orgedna.get_blocker_matches(':BLOCKER: `(my-capture-insert \'my-event-date)`-k-email1'))
+        self.assertEqual(['prefix-`(my-capture-insert \'my-1)`-notes', 'prefix2-`(my-capture-insert \'my-foo)`-bar'],
+                         orgdepend_to_orgedna.get_blocker_matches(':BLOCKER: prefix-`(my-capture-insert \'my-1)`-notes prefix2-`(my-capture-insert \'my-foo)`-bar'))
+        self.assertEqual(['prefix-`(my-capture-insert \'my-1)`-notes', 'prefix2-`(my-capture-insert \'my-foo)`-bar'],
+                         orgdepend_to_orgedna.get_blocker_matches(':BLOCKER: prefix-`(my-capture-insert \'my-1)`-notes  prefix2-`(my-capture-insert \'my-foo)`-bar'))
 
         # org-depend lines that are not "active":
         self.assertEqual(None, orgdepend_to_orgedna.get_blocker_matches(': :BLOCKER: 2016-11-04-some-title'))
@@ -113,8 +119,8 @@ class TestMethods(unittest.TestCase):
 
     def test_yasnippet_blocker(self):
 
-        self.assertEqual(orgdepend_to_orgedna.generate_blocker_line_from_ids(['`(my-capture-insert \'my-event-date)`-k-email1'],
-                                                                             ':BLOCKER: ids("id:`(my-capture-insert \'my-event-date)`-k-email1")'))
+        self.assertEqual(orgdepend_to_orgedna.generate_blocker_line_from_ids(['`(my-capture-insert \'my-event-date)`-k-email1']),
+                                                                             ':BLOCKER: ids("id:`(my-capture-insert \'my-event-date)`-k-email1")')
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8; mode: python; -*-
-PROG_VERSION = u"Time-stamp: <2020-09-23 20:32:31 vk>"
+PROG_VERSION = u"Time-stamp: <2020-09-23 22:00:53 vk>"
 PROG_VERSION_DATE = PROG_VERSION[13:23]
 import sys
 import os
@@ -25,7 +25,7 @@ EPILOG = """
 # ASSUMPTION: IDs consists of [a-zA-Z0-9-]+ only + some elisp code for yasnippet
 # ASSUMPTION: todo keywords are UPPER case words
 # Note: though org-depend concatenates IDs with spaces, I may have used commas as well somewhere.
-BLOCKER_DEPEND_REGEX = re.compile(r"\s*:BLOCKER:\s+(?P<ids>([a-zA-Z0-9'`\(\)\\ -]+?[ ,]*)+?)\s*")
+BLOCKER_DEPEND_REGEX = re.compile(r"\s*:BLOCKER:\s+(?P<ids>([a-zA-Z0-9'`\(\)\\ -]+[ ,]*)+?)$")
 
 # TRIGGER_DEPEND_REGEX = re.compile(r'((([a-zA-Z0-9-]+)\(([A-Z]+)\)))')  # working version without elisp parts
 TRIGGER_DEPEND_REGEX = re.compile(r"((([A-Z]+?)\(([a-zA-Z0-9-'`\(\)\\ ]+?)\)))")
@@ -163,7 +163,29 @@ def get_blocker_matches(line: str) -> Union[None, list]:
                 ids = rawids.split(',')  # multiple ids, concatenated with commas and optional spaces
                 return [x.strip() for x in ids]  # strip each element
             elif ' ' in rawids:
-                return rawids.split()  # multiple ids, concatenated with spaces
+                if '`' in rawids:
+                    # handling of elisp snippets within rawids
+                    # EXAMPLE: line = ":BLOCKER: prefix-`(my-capture-insert 'my-1)`-notes prefix2-`(my-capture-insert 'my-foo)`-bar"
+                    #          rawids = "prefix-`(my-capture-insert 'my-1)`-notes prefix2-`(my-capture-insert 'my-foo)`-bar"
+                    #          EXPECTED result: ["prefix-`(my-capture-insert 'my-1)`-notes", "prefix2-`(my-capture-insert 'my-foo)`-bar"]
+                    #          (notice the valid spaces within the elisp snippets)
+                    newrawids = []
+                    previous_had_backtick = False
+                    for item in rawids.split():
+                        # HACK to re-collect "foo-`elisp with spaces`-bar" junks:
+                        if previous_had_backtick and '`' in item:
+                            newrawids[-1] += ' ' + item
+                            previous_had_backtick = False
+                        elif not previous_had_backtick and '`' in item:
+                            previous_had_backtick = True
+                            newrawids.append(item)
+                        else:
+                            previous_had_backtick = False
+                            newrawids.append(item)
+                    return newrawids
+                else:
+                    # multiple ids, concatenated with spaces
+                    return rawids.split()
             else:
                 return [rawids]  # only one id
         else:
