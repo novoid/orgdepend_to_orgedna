@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8; mode: python; -*-
-PROG_VERSION = u"Time-stamp: <2020-09-24 19:01:20 vk>"
+PROG_VERSION = u"Time-stamp: <2020-09-24 19:11:20 vk>"
 PROG_VERSION_DATE = PROG_VERSION[13:23]
 import sys
 import os
@@ -113,7 +113,7 @@ def get_trigger_matches(line: str) -> Union[None, list]:
         # most probably a valid trigger line
         # EXAMPLE: line = ':TRIGGER:    2016-11-04-some-title(DONE)'
         line_without_property_prefix: str = ' ' + line.strip()[9:]  # get rid of ':TRIGGER:' + add leading space for regex
-        components: List[Set[str]] = TRIGGER_DEPEND_REGEX.findall(line_without_property_prefix)
+        components: List[Tuple[str, str]] = TRIGGER_DEPEND_REGEX.findall(line_without_property_prefix)
         # EXAMPLE: components = ('2016-11-04-some-title(DONE)', '2016-11-04-some-title(DONE)', '2016-11-04-some-title', 'DONE')
         if components:
             # generate a list of sets from the result:
@@ -157,11 +157,11 @@ def get_blocker_matches(line: str) -> Union[None, list]:
     elif 'consider(' in line:
         return None
     else:
-        components = BLOCKER_DEPEND_REGEX.match(line.strip())
+        components: Optional[re.Match] = BLOCKER_DEPEND_REGEX.match(line.strip())
         if components:
-            rawids = components.group('ids')
+            rawids: str = components.group('ids')
             if ',' in rawids:
-                ids = rawids.split(',')  # multiple ids, concatenated with commas and optional spaces
+                ids: List[str] = rawids.split(',')  # multiple ids, concatenated with commas and optional spaces
                 return [x.strip() for x in ids]  # strip each element
             elif ' ' in rawids:
                 if '`' in rawids:
@@ -170,8 +170,8 @@ def get_blocker_matches(line: str) -> Union[None, list]:
                     #          rawids = "prefix-`(my-capture-insert 'my-1)`-notes prefix2-`(my-capture-insert 'my-foo)`-bar"
                     #          EXPECTED result: ["prefix-`(my-capture-insert 'my-1)`-notes", "prefix2-`(my-capture-insert 'my-foo)`-bar"]
                     #          (notice the valid spaces within the elisp snippets)
-                    newrawids = [] # type: List[str]
-                    previous_had_backtick = False
+                    newrawids= [] # type: List[str]
+                    previous_had_backtick: bool = False
                     for item in rawids.split():
                         # HACK to re-collect "foo-`elisp with spaces`-bar" junks:
                         if previous_had_backtick and '`' in item:
@@ -208,8 +208,8 @@ def handle_file(filename: str) -> None:
     """
 
     # converted_filename = absolute path + basename of old filename + '_converted.' + old file extension
-    filename_split = os.path.splitext(filename)
-    output_filename = filename_split[0] + '_converted' + filename_split[1]
+    filename_split: Tuple[str, str] = os.path.splitext(filename)
+    output_filename: str = filename_split[0] + '_converted' + filename_split[1]
 
     # check that new file name does not exist
     if os.path.isfile(output_filename) and not options.overwrite:
@@ -219,7 +219,7 @@ def handle_file(filename: str) -> None:
 
     with open(output_filename, 'w') as outputhandle:
         with codecs.open(filename, 'r', encoding='utf-8') as input:
-            in_properties = False
+            in_properties: bool = False
             for line in input:
                 # To maintain at least a minimum of sanity, matches for
                 # trigger and blocker properties are only tried within
@@ -277,7 +277,7 @@ def main():
                    "This does not make any sense, you silly fool :-)")
 
     # check existance of all files before start with handling any of them:
-    all_files_exist = True
+    all_files_exist: bool = True
     for filename in options.files:
         if not os.path.isfile(filename):
             all_files_exist = False
