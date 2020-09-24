@@ -14,14 +14,14 @@ for this tool.
 *** STARTED trigger with one reference
 :PROPERTIES:
 :CREATED:  [2020-09-19 Sat 11:17]
-:TRIGGER: 2020-09-19-task-2(NEXT)
+:TRIGGER: ids("id:2020-09-19-task-2") todo!(NEXT)
 :END:
 
 *** STARTED trigger with two references
 SCHEDULED: <2020-09-19 Sat> DEADLINE: <2020-09-20 Sun>
 :PROPERTIES:
 :CREATED:  [2020-09-19 Sat 11:17]
-:TRIGGER: 2020-09-19-task-2(NEXT) 2020-09-19-task-3(STARTED)
+:TRIGGER: ids("id:2020-09-19-task-2") todo!(NEXT) ids("id:2020-09-19-task-3") todo!(STARTED)
 :END:
 
 *** task 2: no blocker/trigger
@@ -33,22 +33,22 @@ SCHEDULED: <2020-09-19 Sat> DEADLINE: <2020-09-20 Sun>
 *** task 3: 1 blocker
 :PROPERTIES:
 :CREATED:  [2020-09-19 Sat 11:19]
-:BLOCKER: 2020-09-19-task-2
+:BLOCKER: ids("id:2020-09-19-task-2")
 :ID:       2020-09-19-task-3
 :END:
 
 *** task with 2 blockers
 :PROPERTIES:
 :CREATED:  [2020-09-19 Sat 11:35]
-:BLOCKER: 2020-09-19-task-3 2020-09-19-task-2
+:BLOCKER: ids("id:2020-09-19-task-3" "id:2020-09-19-task-2")
 :END:
 
 *** task with 2 blockers and trigger with two reference
 SCHEDULED: <2020-09-19 Sat>
 :PROPERTIES:
 :CREATED:  [2020-09-19 Sat 11:35]
-:BLOCKER: 2020-09-19-task-3 2020-09-19-task-2
-:TRIGGER: 2020-09-19-task-2(NEXT) 2020-09-19-task-3(STARTED)
+:BLOCKER: ids("id:2020-09-19-task-3" "id:2020-09-19-task-2")
+:TRIGGER: ids("id:2020-09-19-task-2") todo!(NEXT) ids("id:2020-09-19-task-3") todo!(STARTED)
 :END:
 
 ** Yankpad snippet (yasnippet managed within Org mode)
@@ -56,56 +56,56 @@ SCHEDULED: <2020-09-19 Sat>
 \** WAITING get final lecture slots
 :PROPERTIES:
 :ID: FPHD-`(my-capture-insert 'my-year)`-get-slot-info
-:TRIGGER: FPHD-`(my-capture-insert 'my-year)`-write-slots-to-org(NEXT) FPHD-`(my-capture-insert 'my-year)`-write-slots-to-business-calendar(NEXT) FPHD-`(my-capture-insert 'my-year)`-write-slots-to-paper-calendar(NEXT) FPHD-`(my-capture-insert 'my-year)`-eCampus-created(NEXT)
+:TRIGGER: ids("id:FPHD-`(my-capture-insert 'my-year)`-write-slots-to-org") todo!(NEXT) ids("id:FPHD-`(my-capture-insert 'my-year)`-write-slots-to-business-calendar") todo!(NEXT) ids("id:FPHD-`(my-capture-insert 'my-year)`-write-slots-to-paper-calendar") todo!(NEXT) ids("id:FPHD-`(my-capture-insert 'my-year)`-eCampus-created") todo!(NEXT)
 :END:
 
 - this is some information
 
 \** Write lecture slots to Org
 :PROPERTIES:
-:BLOCKER: FPHD-`(my-capture-insert 'my-year)`-get-slot-info
+:BLOCKER: ids("id:FPHD-`(my-capture-insert 'my-year)`-get-slot-info")
 :ID: FPHD-`(my-capture-insert 'my-year)`-write-slots-to-org
-:TRIGGER: FPHD-`(my-capture-insert 'my-year)`-define-essay-deadline(NEXT)
+:TRIGGER: ids("id:FPHD-`(my-capture-insert 'my-year)`-define-essay-deadline") todo!(NEXT)
 :END:
 
 \** Write slots to business calendar
 :PROPERTIES:
 :ID: FPHD-`(my-capture-insert 'my-year)`-write-slots-to-business-calendar
-:BLOCKER: FPHD-`(my-capture-insert 'my-year)`-get-slot-info
+:BLOCKER: ids("id:FPHD-`(my-capture-insert 'my-year)`-get-slot-info")
 :END:
 
 \** Write slots to paper calendar
 :PROPERTIES:
 :ID: FPHD-`(my-capture-insert 'my-year)`-write-slots-to-paper-calendar
-:BLOCKER: FPHD-`(my-capture-insert 'my-year)`-get-slot-info
+:BLOCKER: ids("id:FPHD-`(my-capture-insert 'my-year)`-get-slot-info")
 :END:
 
 \** [#A] Create eCampus
 SCHEDULED: <`(my-capture-insert 'my-year)`-02-10>
 :PROPERTIES:
-:BLOCKER: FPHD-`(my-capture-insert 'my-year)`-get-slot-info
+:BLOCKER: ids("id:FPHD-`(my-capture-insert 'my-year)`-get-slot-info")
 :ID: FPHD-`(my-capture-insert 'my-year)`-eCampus-created
-:TRIGGER: FPHD-`(my-capture-insert 'my-year)`-setup-eCampus-chapters(NEXT) FPHD-`(my-capture-insert 'my-year)`-read-last-years-emails(NEXT)
+:TRIGGER: ids("id:FPHD-`(my-capture-insert 'my-year)`-setup-eCampus-chapters") todo!(NEXT) ids("id:FPHD-`(my-capture-insert 'my-year)`-read-last-years-emails") todo!(NEXT)
 :END:
 
 \** Setup eCampus chapters
 SCHEDULED: `(my-capture-insert 'my-ecampus-start-preparation)`
 :PROPERTIES:
 :ID: FPHD-`(my-capture-insert 'my-year)`-setup-eCampus-chapters
-:BLOCKER: FPHD-`(my-capture-insert 'my-year)`-eCampus-created
+:BLOCKER: ids("id:FPHD-`(my-capture-insert 'my-year)`-eCampus-created")
 :END:
 
 \** Skim previous year's emails
 SCHEDULED: `(my-capture-insert 'my-ecampus-start-preparation)`
 :PROPERTIES:
 :ID: FPHD-`(my-capture-insert 'my-year)`-read-last-years-emails
-:BLOCKER: FPHD-`(my-capture-insert 'my-year)`-eCampus-created
+:BLOCKER: ids("id:FPHD-`(my-capture-insert 'my-year)`-eCampus-created")
 :END:
 
 \** Define deadline for essay
 :PROPERTIES:
 :ID: FPHD-`(my-capture-insert 'my-year)`-define-essay-deadline
-:BLOCKER: FPHD-`(my-capture-insert 'my-year)`-write-slots-to-org
+:BLOCKER: ids("id:FPHD-`(my-capture-insert 'my-year)`-write-slots-to-org")
 :END:
 
 ... and so forth ...
@@ -153,7 +153,7 @@ Wir freuen uns!
 \**** NEXT Kabarett-Reminder an alle angemeldeten
 SCHEDULED: <`(my-capture-prompt "ISO-Datum Erinnerungsemail" 'my-reminder-date)`>
 :PROPERTIES:
-:BLOCKER: `(my-capture-insert 'my-event-date)`-k-email1
+:BLOCKER: ids("id:`(my-capture-insert 'my-event-date)`-k-email1")
 :ID: `(my-capture-insert 'my-event-date)`-k-email2
 :END:
 

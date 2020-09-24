@@ -43,6 +43,9 @@ What is executed:
    [[file:testfile_expected_output.org][testfile_expected_output.org]].
    - This is an end-to-end test which also gives you a brief overview
      on the features and limitations of this tool.
+   - Please note that on executing this script, the file
+     =testfile_input_converted.org= gets overwritten using the
+     =--overwrite= flag.
 
 ** Assumptions
 
