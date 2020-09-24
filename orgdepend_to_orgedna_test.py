@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2020-09-23 21:59:59 vk>
+# Time-stamp: <2020-09-24 20:21:23 vk>
 
 # FIXXME: remove unnecessary imports
 import unittest
@@ -29,6 +29,10 @@ class TestMethods(unittest.TestCase):
                          [('prefix-`(my-capture-insert \'my-1)`-notes', 'STARTED')])
         self.assertEqual(orgdepend_to_orgedna.get_trigger_matches(':TRIGGER: prefix-`(my-capture-insert \'my-1)`-notes(STARTED)    prefix2-`(my-capture-insert \'my-foo)`-bar(NEXT)'),
                          [('prefix-`(my-capture-insert \'my-1)`-notes', 'STARTED'), ('prefix2-`(my-capture-insert \'my-foo)`-bar', 'NEXT')])
+
+        # chain-siblings
+        self.assertEqual(orgdepend_to_orgedna.get_trigger_matches(':TRIGGER: chain-siblings(NEXT)'),
+                        [('chain-siblings', 'NEXT')])
 
         # org-depend lines that are not "active":
         self.assertFalse(orgdepend_to_orgedna.get_trigger_matches(': :TRIGGER:    2016-11-04-some-title(DONE)'))
@@ -93,6 +97,11 @@ class TestMethods(unittest.TestCase):
 
         self.assertEqual(orgdepend_to_orgedna.convert_trigger_line([('2016-11-04-some-title', 'DONE')]),
                          ':TRIGGER: ids("id:2016-11-04-some-title") todo!(DONE)')
+
+    def test_trigger_with_chain_siblings(self):
+
+        self.assertEqual(orgdepend_to_orgedna.convert_trigger_line([('chain-siblings', 'NEXT')]),
+                         ':TRIGGER: next-sibling todo!(NEXT)')
 
     def test_trigger_line_with_two_ids(self):
 

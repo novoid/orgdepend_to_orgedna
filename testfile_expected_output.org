@@ -51,6 +51,17 @@ SCHEDULED: <2020-09-19 Sat>
 :TRIGGER: ids("id:2020-09-19-task-2") todo!(NEXT) ids("id:2020-09-19-task-3") todo!(STARTED)
 :END:
 
+** chain-siblings() is not supported in org-edna
+
+*** STARTED this one is the first
+:PROPERTIES:
+:TRIGGER:  next-sibling todo!(NEXT)
+:END:
+
+*** second
+
+*** third
+
 ** Yankpad snippet (yasnippet managed within Org mode)
 
 \** WAITING get final lecture slots

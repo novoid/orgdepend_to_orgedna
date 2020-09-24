@@ -47,7 +47,7 @@ What is executed:
      =testfile_input_converted.org= gets overwritten using the
      =--overwrite= flag.
 
-** Assumptions
+** Assumptions and Notes
 
 Due the "works for me"-type of tool, I made some assumptions which may
 or may not reflect your situation:
@@ -73,6 +73,21 @@ One further assumption: at least with =org-edna= version 1.1.2 you can
 use =ids("id:foo")= (notice the "id:" within the ID) which gets you
 navigable links within =ids()= properties. This won't work with older
 versions of =org-edna=.
+
+There is one feature in org-depend which does not have a simple
+corresponding feature in org-edna:
+
+: :TRIGGER: chain-siblings(NEXT)
+
+This expression gets converted to:
+
+: :TRIGGER: next-sibling todo!(NEXT)
+
+This behaves like =chain-siblings()= only for one heading. Please add
+this expression to the followup-headings manually.
+
+Alternatively, you can decide on [[https://orgmode.org/manual/TODO-dependencies.html][using =:ORDERED: t= for a whole
+sub-hierarchy]].
 
 ** Command Line Options
 

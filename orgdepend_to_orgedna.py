@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8; mode: python; -*-
-PROG_VERSION = u"Time-stamp: <2020-09-24 19:11:20 vk>"
+PROG_VERSION = u"Time-stamp: <2020-09-24 20:22:16 vk>"
 PROG_VERSION_DATE = PROG_VERSION[13:23]
 import sys
 import os
@@ -143,7 +143,12 @@ def convert_trigger_line(matches: list) -> str:
     # a list of sets from the regex result
     for match in matches:
         (dependid, keyword) = match
-        edna_result += ' ids("id:' + dependid + '") todo!(' + keyword + ')'
+        if dependid == 'chain-siblings':
+            # org-edna does not have a corresponding feature to ":TRIGGER: chain-siblings(NEXT)" from org-depend:
+            edna_result += ' next-sibling todo!(' + keyword + ')'
+            logging.warning('Org-depend\'s "chain-siblings()" aren\'t supported in org-edna. The expression was converted to "' + edna_result + '" which only covers the first sibling. Please fix manually!')
+        else:
+            edna_result += ' ids("id:' + dependid + '") todo!(' + keyword + ')'
     return edna_result
 
 
