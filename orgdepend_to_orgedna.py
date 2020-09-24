@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8; mode: python; -*-
-PROG_VERSION = u"Time-stamp: <2020-09-23 22:00:53 vk>"
+PROG_VERSION = u"Time-stamp: <2020-09-24 19:01:20 vk>"
 PROG_VERSION_DATE = PROG_VERSION[13:23]
 import sys
 import os
@@ -8,7 +8,7 @@ PROG_NAME = os.path.basename(sys.argv[0])
 import logging
 import re
 import argparse   # for handling command line arguments
-from typing import List, Union, Tuple, Optional  # mypy: type checks
+from typing import List, Set, Union, Tuple, Optional  # mypy: type checks
 import codecs
 
 
@@ -27,8 +27,7 @@ EPILOG = """
 # Note: though org-depend concatenates IDs with spaces, I may have used commas as well somewhere.
 BLOCKER_DEPEND_REGEX = re.compile(r"\s*:BLOCKER:\s+(?P<ids>([a-zA-Z0-9'`\(\)\\ -]+[ ,]*)+?)$")
 
-# TRIGGER_DEPEND_REGEX = re.compile(r'((([a-zA-Z0-9-]+)\(([A-Z]+)\)))')  # working version without elisp parts
-TRIGGER_DEPEND_REGEX = re.compile(r"((([A-Z]+?)\(([a-zA-Z0-9-'`\(\)\\ ]+?)\)))")
+TRIGGER_DEPEND_REGEX = re.compile(r"\s+([a-zA-Z0-9-'`\(\)\\ ]+?)\(([A-Z]+)\)")
 
 parser = argparse.ArgumentParser(prog=sys.argv[0],
                                  # keep line breaks in EPILOG and such
@@ -111,9 +110,11 @@ def get_trigger_matches(line: str) -> Union[None, list]:
         # already org-edna syntax
         return None
     elif line.strip().upper().startswith(':TRIGGER:'):
-        # most probably a clean trigger line (comments, ...)
-        components = TRIGGER_DEPEND_REGEX.findall(line.strip())
-        # example: ('2016-11-04-some-title(DONE)', '2016-11-04-some-title(DONE)', '2016-11-04-some-title', 'DONE')
+        # most probably a valid trigger line
+        # EXAMPLE: line = ':TRIGGER:    2016-11-04-some-title(DONE)'
+        line_without_property_prefix: str = ' ' + line.strip()[9:]  # get rid of ':TRIGGER:' + add leading space for regex
+        components: List[Set[str]] = TRIGGER_DEPEND_REGEX.findall(line_without_property_prefix)
+        # EXAMPLE: components = ('2016-11-04-some-title(DONE)', '2016-11-04-some-title(DONE)', '2016-11-04-some-title', 'DONE')
         if components:
             # generate a list of sets from the result:
             #    x[-2] = id
@@ -137,7 +138,7 @@ def convert_trigger_line(matches: list) -> str:
     """
 
     assert(len(matches) > 0)
-    edna_result = ':TRIGGER:'
+    edna_result: str = ':TRIGGER:'
 
     # a list of sets from the regex result
     for match in matches:
@@ -169,7 +170,7 @@ def get_blocker_matches(line: str) -> Union[None, list]:
                     #          rawids = "prefix-`(my-capture-insert 'my-1)`-notes prefix2-`(my-capture-insert 'my-foo)`-bar"
                     #          EXPECTED result: ["prefix-`(my-capture-insert 'my-1)`-notes", "prefix2-`(my-capture-insert 'my-foo)`-bar"]
                     #          (notice the valid spaces within the elisp snippets)
-                    newrawids = []
+                    newrawids = [] # type: List[str]
                     previous_had_backtick = False
                     for item in rawids.split():
                         # HACK to re-collect "foo-`elisp with spaces`-bar" junks:
