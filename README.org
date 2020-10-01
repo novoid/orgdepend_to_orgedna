@@ -6,6 +6,7 @@ todo tasks. The latter one is more advanced and therefore has a more
 complicated syntax.
 
 You might be interested in following blog articles of mine:
+- [[https://karl-voit.at/2020/10/01/org-depend-to-edna/][My background story on why I wrote this script and a few interesting things around it]]
 - [[https://karl-voit.at/2016/12/18/org-depend][UOMF: Advanced Usage of Dependencies Between Tasks Using Org Mode]] (covers org-depend)
 - [[https://karl-voit.at/2020/08/14/project-mgt-draft][A Draft Workflow for Advanced Project Management Using Org Mode and Org Edna]] (covers org-edna)
 
